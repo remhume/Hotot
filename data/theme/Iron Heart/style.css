@@ -87,6 +87,9 @@ a {
     background-color: #232223;
     border-bottom: 0px #111 solid;
 }
+.card_body > .who > .who_href > .who_additional{
+    color: #999;
+}
 .card:last-child {
     border-bottom: 0;
 }

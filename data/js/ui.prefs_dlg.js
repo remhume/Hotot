@@ -234,7 +234,9 @@ function load_prefs() {
     var prefs = conf.get_current_profile().preferences;
     // Appearance
     $('#sel_prefs_lang').val(prefs.lang);
-
+    
+    $('#sel_prefs_name').val(prefs.name);
+    
     var theme_list = $('#sel_prefs_theme').empty();
     for (var i = 0, l = conf.vars.builtin_themes.length; i < l; i += 1) {
         var theme_name = conf.vars.builtin_themes[i];
@@ -345,7 +347,7 @@ function save_prefs() {
     var prefs = conf.get_current_profile().preferences;
     // Looks & Feels
     prefs.lang = $('#sel_prefs_lang').val();
-
+    prefs.name = $('#sel_prefs_name').val();
     prefs.theme = $('#sel_prefs_theme').val();
     prefs.theme_path = $('#sel_prefs_theme').children('option[value="'+$('#sel_prefs_theme').val()+'"]').attr('path');
     prefs.custom_font = $('#tbox_prefs_custom_font').val();

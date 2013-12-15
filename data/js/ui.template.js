@@ -44,7 +44,8 @@ tweet_t:
     <div class="card_body">\
         <div class="who {%RETWEET_MARK%}">\
         <a class="who_href" href="#{%SCREEN_NAME%}" title="{%USER_NAME%}\n\n{%DESCRIPTION%}">\
-            {%SCREEN_NAME%}\
+            {%FIRST_NAME%} \
+            <span class="who_additional">{%ADDITIONAL_NAME%}</span>\
         </a>\
         </div>\
         <div class="text" alt="{%ALT%}" style="font-size:{%TWEET_FONT_SIZE%}pt;line-height:{%TWEET_LINE_HEIGHT%}">{%TEXT%}</div>\
@@ -104,7 +105,8 @@ retweeted_by_t:
     <div class="card_body">\
         <div class="who {%RETWEET_MARK%}">\
         <a class="who_href" href="#{%SCREEN_NAME%}" title="{%USER_NAME%}">\
-            {%SCREEN_NAME%}\
+            {%FIRST_NAME%} \
+            <span class="who_additional">{%ADDITIONAL_NAME%}</span>\
         </a>\
         </div>\
         <div class="text" alt="{%ALT%}" style="font-size:{%TWEET_FONT_SIZE%}pt;line-height:{%TWEET_LINE_HEIGHT%}">{%TEXT%}</div>\
@@ -150,7 +152,8 @@ message_t:
     <div class="card_body">\
         <div class="who">\
         <a class="who_href" href="#{%SCREEN_NAME%}" title="{%USER_NAME%}\n\n{%DESCRIPTION%}">\
-            {%SCREEN_NAME%}\
+            {%FIRST_NAME%} \
+            <span class="who_additional">{%ADDITIONAL_NAME%}</span>\
         </a>\
         </div>\
         <div class="text" style="font-size:{%TWEET_FONT_SIZE%}pt;line-height:{%TWEET_LINE_HEIGHT%}">@<a class="who_href" href="#{%RECIPIENT_SCREEN_NAME%}">{%RECIPIENT_SCREEN_NAME%}</a> {%TEXT%}</div>\
@@ -185,7 +188,8 @@ search_t:
     <div class="card_body">\
         <div class="who">\
         <a class="who_href" href="#{%SCREEN_NAME%}" title="{%USER_NAME%}">\
-            {%SCREEN_NAME%}\
+            {%FIRST_NAME%} \
+            <span class="who_additional">{%ADDITIONAL_NAME%}</span>\
         </a>\
         </div>\
         <div class="text" style="font-size:{%TWEET_FONT_SIZE%}pt;line-height:{%TWEET_LINE_HEIGHT%}">{%TEXT%}</div>\
@@ -219,7 +223,8 @@ people_t:
     <div class="card_body">\
         <div id="{%USER_ID%}" class="who">\
         <a class="who_href" href="#{%SCREEN_NAME%}" title="{%USER_NAME%}">\
-            {%SCREEN_NAME%}\
+            {%FIRST_NAME%} \
+            <span class="who_additional">{%ADDITIONAL_NAME%}</span>\
         </a>\
         </div>\
         <div class="text" style="font-style:italic font-size:{%TWEET_FONT_SIZE%}pt;line-height:{%TWEET_LINE_HEIGHT%}">{%DESCRIPTION%}</div>\
@@ -615,6 +620,7 @@ function init() {
     ui.Template.tweet_m = {
           ID:'', TWEET_ID:'', RETWEET_ID:''
         , REPLY_ID:'',SCREEN_NAME:'',REPLY_NAME:'', USER_NAME:''
+        , FIRST_NAME:'',ADDITIONAL_NAME:''
         , PROFILE_IMG:'', TEXT:'', SOURCE:'', SCHEME:''
         , IN_REPLY:'', RETWEETABLE:'', REPLY_TEXT:'', RETWEET_TEXT:''
         , RETWEET_MARK:'', SHORT_TIMESTAMP:'', TIMESTAMP:'', FAV_CLASS:''
@@ -636,6 +642,7 @@ function init() {
     ui.Template.retweeted_by_m = {
           ID:'', TWEET_ID:'', RETWEET_ID:''
         , REPLY_ID:'',SCREEN_NAME:'',REPLY_NAME:'', USER_NAME:''
+        , FIRST_NAME:'',ADDITIONAL_NAME:''
         , PROFILE_IMG:'', TEXT:'', SOURCE:'', SCHEME:''
         , IN_REPLY:'', RETWEETABLE:'', REPLY_TEXT:'', RETWEET_TEXT:''
         , RETWEET_MARK:'', SHORT_TIMESTAMP:'', TIMESTAMP:'', FAV_CLASS:''
@@ -654,6 +661,7 @@ function init() {
     ui.Template.message_m = {
           ID:'', TWEET_ID:'', SCREEN_NAME:'', RECIPIENT_SCREEN_NAME:''
         , USER_NAME:'', PROFILE_IMG:'', TEXT:''
+        , FIRST_NAME:'',ADDITIONAL_NAME:''
         , SCHEME:'', TIMESTAMP:''
         , TWEET_FONT_SIZE:'', TWEET_FONT:''
         , TWEET_LINE_HEIGHT:''
@@ -663,6 +671,7 @@ function init() {
     ui.Template.search_m = {
           ID:'', TWEET_ID:'', SCREEN_NAME:''
         , USER_NAME:'', PROFILE_IMG:'', TEXT:'', SOURCE:''
+        , FIRST_NAME:'',ADDITIONAL_NAME:''
         , SCHEME:'', SHORT_TIMESTAMP:'', TIMESTAMP:''
         , TWEET_FONT_SIZE:'', TWEET_FONT:''
         , TWEET_LINE_HEIGHT:''
@@ -672,6 +681,7 @@ function init() {
 
     ui.Template.people_m = {
           USER_ID:'', SCREEN_NAME:'', USER_NAME:'', DESCRIPTION:''
+        , FIRST_NAME:'',ADDITIONAL_NAME:''
         , PROFILE_IMG:'', FOLLOWING:'', TWEET_FONT_SIZE:'', TWEET_FONT:''
         , TWEET_LINE_HEIGHT:''
     };
@@ -742,13 +752,30 @@ function form_dm(dm_obj, pagename) {
     var created_at_str = ui.Template.to_long_time_string(created_at);
     var created_at_short_str = ui.Template.to_short_time_string(created_at);
     var text = ui.Template.form_text(dm_obj);
-
+    var nametype = conf.get_current_profile().preferences.name;
+    
     var m = ui.Template.message_m;
     m.ID = pagename + '-' + dm_obj.id_str;
     m.TWEET_ID = dm_obj.id_str;
     m.SCREEN_NAME = dm_obj.sender.screen_name;
     m.RECIPIENT_SCREEN_NAME = dm_obj.recipient.screen_name;
     m.USER_NAME = dm_obj.sender.name;
+    switch(nametype){
+        case 'auto':
+            m.FIRST_NAME = m.USER_NAME;
+            m.ADDITIONAL_NAME = '@' + m.SCREEN_NAME;
+            break;
+        case 'reverse':
+            m.FIRST_NAME = '@' + m.SCREEN_NAME;
+            m.ADDITIONAL_NAME = m.USER_NAME;
+            break;
+        case 'username':
+            m.FIRST_NAME = m.USER_NAME;
+            break;
+        case 'screenname':
+            m.FIRST_NAME = m.SCREEN_NAME;
+            break;
+    }
     m.DESCRIPTION = dm_obj.sender.description;
     m.PROFILE_IMG = dm_obj.sender.profile_image_url;
     m.TEXT = text;
@@ -857,6 +884,7 @@ function form_tweet (tweet_obj, pagename, in_thread) {
         text = text.replace(re, '$1');
         // hotot_log('form_tweet', 'resulting text: ' + text);
     }
+    var nametype = conf.get_current_profile().preferences.name;
 
     var m = ui.Template.tweet_m;
     m.ID = pagename+'-'+id;
@@ -867,6 +895,22 @@ function form_tweet (tweet_obj, pagename, in_thread) {
     m.SCREEN_NAME = tweet_obj.user.screen_name;
     m.REPLY_NAME = reply_id != null? reply_name: '';
     m.USER_NAME = tweet_obj.user.name;
+    switch(nametype){
+        case 'auto':
+            m.FIRST_NAME = m.USER_NAME;
+            m.ADDITIONAL_NAME = '@' + m.SCREEN_NAME;
+            break;
+        case 'reverse':
+            m.FIRST_NAME = '@' + m.SCREEN_NAME;
+            m.ADDITIONAL_NAME = m.USER_NAME;
+            break;
+        case 'username':
+            m.FIRST_NAME = m.USER_NAME;
+            break;
+        case 'screenname':
+            m.FIRST_NAME = m.SCREEN_NAME;
+            break;
+    }
     m.DESCRIPTION = tweet_obj.user.description;
     m.PROFILE_IMG = tweet_obj.user.profile_image_url;
     m.TEXT = text;
@@ -953,6 +997,7 @@ function form_retweeted_by(tweet_obj, pagename) {
             + retweet_name + '">'
             + retweet_name + '</a>, ';
     }
+    var nametype = conf.get_current_profile().preferences.name;
 
     var m = ui.Template.retweeted_by_m;
     m.ID = pagename+'-'+id;
@@ -962,6 +1007,22 @@ function form_retweeted_by(tweet_obj, pagename) {
     m.SCREEN_NAME = tweet_obj.user.screen_name;
     m.REPLY_NAME = reply_id != null? reply_name: '';
     m.USER_NAME = tweet_obj.user.name;
+    switch(nametype){
+        case 'auto':
+            m.FIRST_NAME = m.USER_NAME;
+            m.ADDITIONAL_NAME = '@' + m.SCREEN_NAME;
+            break;
+        case 'reverse':
+            m.FIRST_NAME = '@' + m.SCREEN_NAME;
+            m.ADDITIONAL_NAME = m.USER_NAME;
+            break;
+        case 'username':
+            m.FIRST_NAME = m.USER_NAME;
+            break;
+        case 'screenname':
+            m.FIRST_NAME = m.SCREEN_NAME;
+            break;
+    }
     m.PROFILE_IMG = tweet_obj.user.profile_image_url;
     m.TEXT = ui.Template.form_text(tweet_obj);
     m.SOURCE = tweet_obj.source.replace('href', 'target="_blank" href');
@@ -1026,12 +1087,29 @@ function form_search(tweet_obj, pagename) {
     if (tweet_obj.entities.urls.length > 0) {
         link = tweet_obj.entities.urls[0].expanded_url;
     }
+    var nametype = conf.get_current_profile().preferences.name;
 
     var m = ui.Template.search_m;
     m.ID = pagename + '-' + id;
     m.TWEET_ID = id;
     m.SCREEN_NAME = tweet_obj.from_user;
     m.USER_NAME = tweet_obj.from_user_name;
+    switch(nametype){
+        case 'auto':
+            m.FIRST_NAME = m.USER_NAME;
+            m.ADDITIONAL_NAME = '@' + m.SCREEN_NAME;
+            break;
+        case 'reverse':
+            m.FIRST_NAME = '@' + m.SCREEN_NAME;
+            m.ADDITIONAL_NAME = m.USER_NAME;
+            break;
+        case 'username':
+            m.FIRST_NAME = m.USER_NAME;
+            break;
+        case 'screenname':
+            m.FIRST_NAME = m.SCREEN_NAME;
+            break;
+    }
     m.PROFILE_IMG = tweet_obj.profile_image_url;
     m.TEXT = text;
     m.SOURCE = source.replace('href', 'target="_blank" href');
@@ -1049,10 +1127,28 @@ function form_search(tweet_obj, pagename) {
 
 form_people:
 function form_people(user_obj, pagename) {
+    var nametype = conf.get_current_profile().preferences.name;
+    
     var m = ui.Template.people_m;
     m.USER_ID = pagename + '-' + user_obj.id_str;
     m.SCREEN_NAME = user_obj.screen_name;
     m.USER_NAME = user_obj.name;
+    switch(nametype){
+        case 'auto':
+            m.FIRST_NAME = m.USER_NAME;
+            m.ADDITIONAL_NAME = '@' + m.SCREEN_NAME;
+            break;
+        case 'reverse':
+            m.FIRST_NAME = '@' + m.SCREEN_NAME;
+            m.ADDITIONAL_NAME = m.USER_NAME;
+            break;
+        case 'username':
+            m.FIRST_NAME = m.USER_NAME;
+            break;
+        case 'screenname':
+            m.FIRST_NAME = m.SCREEN_NAME;
+            break;
+    }
     m.DESCRIPTION = user_obj.description;
     m.PROFILE_IMG = user_obj.profile_image_url;
     m.FOLLOWING = user_obj.following;

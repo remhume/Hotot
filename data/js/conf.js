@@ -34,7 +34,7 @@ default_settings: {
     , 'sign_in_automatically': false
     , 'starts_minimized': false
     , 'font_list': ['Arial', 'Wide', 'Narrow', 'Calibri', 'Cambria', 'Comic Sans MS', 'Consolas', 'Corsiva', 'Courier New', 'Droid Sans', 'Droid Serif', 'Syncopate', 'Times New Roman']
-    , 'use_default_reply_all': false
+    , 'use_default_reply_all': true
     , 'pos_x': 0
     , 'pos_y': 0
 },
@@ -48,6 +48,7 @@ default_prefs: {
         , 'access_token': ''
           // Look & Feels:
         , 'lang': 'auto'
+        , 'name': 'auto'
         , 'theme': 'New Hope'
         , 'theme_path': 'theme/New Hope'
         , 'use_custom_font': false
@@ -97,6 +98,7 @@ default_prefs: {
         , 'access_token': ''
           // Look & Feels:
         , 'lang': 'auto'
+        , 'name': 'auto'
         , 'theme': 'New Hope'
         , 'theme_path': 'theme/New Hope'
         , 'use_custom_font': false
